@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { generateInsights } from '@/lib/ai';
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,15 +42,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // NOTE: For now return mocked insights content (no AI integration yet)
-    const data = {
-      summary: 'You spent 2h on Instagram at night, this impacts sleep.',
-      nudges: ['Move your phone outside the bedroom.'],
-      alternatives: [
-        { type: 'video', title: 'DSA Crash Course', url: 'https://youtube.com/example' },
-        { type: 'task', title: 'Leetcode 10 questions', description: 'Use that 2h for practice.' },
-      ],
-    };
+    // AI stub: call generateInsights with last usage + profile
+    const data = await generateInsights(
+      lastUsage ? { date: lastUsage.date, apps: lastUsage.apps ?? [] } : null,
+      profile ? {
+        goal: profile.goal ?? null,
+        skill: profile.skill ?? null,
+        inspiration: profile.inspiration ?? null,
+        distraction: profile.distraction ?? null,
+      } : null
+    );
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
