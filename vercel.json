@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "functions": {
+    "app/**": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 15,
+      "memory": 256
+    },
+    "api/**": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 15,
+      "memory": 256
+    }
+  },
+  "regions": ["iad1"],
+  "installCommand": "npm ci || npm i",
+  "buildCommand": "next build"
+}
