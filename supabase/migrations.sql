@@ -1,4 +1,15 @@
 -- Ensure pgcrypto extension for gen_random_uuid
+-- Daily insights table (separate from existing insights table)
+CREATE TABLE IF NOT EXISTS insights_daily (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  suggestions JSONB NOT NULL DEFAULT '[]',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_insights_daily_user_date ON insights_daily(user_id, date);
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Create users table
