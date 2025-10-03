@@ -92,7 +92,7 @@ export default function ReportPage() {
       minutes: a.minutes,
       fill: appColors[index % appColors.length] // Assign color based on index
     }));
-  }, [report]);
+  }, [report, appColors]);
 
   const under5hDays = useMemo(() => {
     if (!report) return 0;
