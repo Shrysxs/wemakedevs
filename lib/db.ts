@@ -69,3 +69,63 @@ export async function getLatestInsights(userId: string) {
 
   return fallback.data ?? null;
 }
+
+// =====================================
+// Focus session helpers (no duration/reclaimed in schema)
+// =====================================
+
+export async function startFocusSession(userId: string) {
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('focus_sessions')
+    .insert({ user_id: userId, started_at: now })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`startFocusSession failed: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function endFocusSession(userId: string, sessionId: string) {
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('focus_sessions')
+    .update({ ended_at: now })
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`endFocusSession failed: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function getTodayFocusSessions(userId: string) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+
+  const startISO = start.toISOString();
+  const endISO = end.toISOString();
+
+  const { data, error } = await supabase
+    .from('focus_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('started_at', startISO)
+    .lt('started_at', endISO)
+    .order('started_at', { ascending: true });
+
+  if (error) {
+    throw new Error(`getTodayFocusSessions failed: ${error.message}`);
+  }
+
+  return data ?? [];
+}

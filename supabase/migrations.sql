@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS focus_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   duration INTEGER NOT NULL,
-  reclaimed INTEGER NOT NULL,
   started_at TIMESTAMPTZ NOT NULL,
   ended_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -60,3 +59,18 @@ CREATE INDEX IF NOT EXISTS idx_usage_logs_user_id ON usage_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_usage_logs_date ON usage_logs(date);
 CREATE INDEX IF NOT EXISTS idx_insights_user_id ON insights(user_id);
 CREATE INDEX IF NOT EXISTS idx_focus_sessions_user_id ON focus_sessions(user_id);
+
+-- Ensure focus_sessions schema matches current requirements
+-- Columns: id (uuid pk), user_id (uuid fk), started_at (timestamptz), ended_at (timestamptz, nullable)
+ALTER TABLE IF EXISTS focus_sessions
+  ALTER COLUMN ended_at DROP NOT NULL;
+
+-- Remove deprecated columns if present
+ALTER TABLE IF EXISTS focus_sessions
+  DROP COLUMN IF EXISTS duration,
+  DROP COLUMN IF EXISTS reclaimed;
+
+-- Ensure required columns exist with correct types
+ALTER TABLE IF EXISTS focus_sessions
+  ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ NOT NULL,
+  ADD COLUMN IF NOT EXISTS ended_at TIMESTAMPTZ NULL;
