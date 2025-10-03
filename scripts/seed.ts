@@ -70,11 +70,11 @@ async function main() {
     .upsert({ id: userId, email })
     .eq('id', userId);
 
-  // 3) Upsert usage for today
+  // 3) Upsert usage for today (generic app names)
   const apps = [
-    { name: 'YouTube', minutes: 180 },
-    { name: 'Instagram', minutes: 120 },
-    { name: 'Notes', minutes: 60 },
+    { name: 'Social Media App', minutes: 180 },
+    { name: 'Video Platform', minutes: 120 },
+    { name: 'Productivity App', minutes: 60 },
   ];
 
   const { error: usageErr } = await anon

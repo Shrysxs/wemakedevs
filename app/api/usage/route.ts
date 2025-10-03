@@ -32,13 +32,56 @@ export async function POST(request: NextRequest) {
       minutes: Number(a.minutes ?? 0),
     })).filter((a) => a.name.length > 0 && Number.isFinite(a.minutes) && a.minutes >= 0);
 
-    // Insert or update usage log
+    // Check if usage log already exists for this user and date
+    const { data: existingLog, error: fetchError } = await supabase
+      .from('usage_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', date)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Error fetching existing usage log:', fetchError);
+      return NextResponse.json(
+        { error: 'Failed to check existing usage log', details: fetchError.message },
+        { status: 500 }
+      );
+    }
+
+    let finalApps: AppUsage[];
+    
+    if (existingLog && existingLog.apps) {
+      // Merge existing apps with new apps, accumulating minutes for same app names
+      const existingApps = (existingLog.apps || []) as AppUsage[];
+      const appMap = new Map<string, number>();
+      
+      // Add existing app usage
+      existingApps.forEach(app => {
+        appMap.set(app.name, (appMap.get(app.name) || 0) + Number(app.minutes || 0));
+      });
+      
+      // Add new app usage
+      normalizedApps.forEach(app => {
+        appMap.set(app.name, (appMap.get(app.name) || 0) + Number(app.minutes || 0));
+      });
+      
+      // Convert back to array
+      finalApps = Array.from(appMap.entries()).map(([name, minutes]) => ({
+        name,
+        minutes
+      }));
+    } else {
+      // No existing data, use new apps as-is
+      finalApps = normalizedApps;
+    }
+
+    // Insert or update usage log with accumulated data
     const { data, error } = await supabase
       .from('usage_logs')
       .upsert({
         user_id: userId,
         date: date,
-        apps: normalizedApps,
+        apps: finalApps,
       }, {
         onConflict: 'user_id,date'
       })

@@ -1,6 +1,13 @@
 // AI integration stub for future LLaMA + Cerebras calls
 // Swap implementations tomorrow by wiring real endpoints and API keys.
 
+// Declare process for Node.js environment
+declare const process: {
+  env: {
+    [key: string]: string | undefined;
+  };
+} | undefined;
+
 export interface ProfileStub {
   goal?: string | null;
   skill?: string | null;
@@ -20,15 +27,130 @@ export interface InsightPayload {
 }
 
 // Mock external calls — replace with real fetch to LLaMA/Cerebras
-async function callLlamaModel(_usage: UsageLogStub, _profile: ProfileStub): Promise<InsightPayload> {
-  // Placeholder: return deterministic content; integrate real API later
+async function callLlamaModel(usage: UsageLogStub, profile: ProfileStub): Promise<InsightPayload> {
+  // Generate more accurate insights based on usage patterns and user profile
+  const apps = usage.apps || [];
+  const totalMinutes = apps.reduce((sum, app) => sum + app.minutes, 0);
+  
+  if (totalMinutes === 0) {
+    return {
+      summary: 'No usage data available for analysis.',
+      nudges: ['Start tracking your app usage to get personalized insights.'],
+      alternatives: [],
+    };
+  }
+
+  // Analyze usage patterns
+  const topApps = apps.sort((a, b) => b.minutes - a.minutes).slice(0, 3);
+  const productiveApps = apps.filter(app => 
+    app.name.toLowerCase().includes('code') || 
+    app.name.toLowerCase().includes('dev') ||
+    app.name.toLowerCase().includes('study') ||
+    app.name.toLowerCase().includes('learn') ||
+    app.name.toLowerCase().includes('book') ||
+    app.name.toLowerCase().includes('read')
+  );
+  const distractingApps = apps.filter(app => 
+    app.name.toLowerCase().includes('social') ||
+    app.name.toLowerCase().includes('game') ||
+    app.name.toLowerCase().includes('entertainment') ||
+    app.name.toLowerCase().includes('video') ||
+    app.name.toLowerCase().includes('youtube') ||
+    app.name.toLowerCase().includes('instagram') ||
+    app.name.toLowerCase().includes('facebook') ||
+    app.name.toLowerCase().includes('twitter') ||
+    app.name.toLowerCase().includes('tiktok')
+  );
+
+  const productiveTime = productiveApps.reduce((sum, app) => sum + app.minutes, 0);
+  const distractingTime = distractingApps.reduce((sum, app) => sum + app.minutes, 0);
+  const productivityRatio = totalMinutes > 0 ? (productiveTime / totalMinutes) * 100 : 0;
+
+  // Generate summary based on analysis
+  let summary = `You spent ${totalMinutes} minutes on apps today. `;
+  if (productivityRatio > 60) {
+    summary += `Great job! ${productivityRatio.toFixed(0)}% of your time was spent on productive activities.`;
+  } else if (productivityRatio > 30) {
+    summary += `You had a balanced day with ${productivityRatio.toFixed(0)}% productive time. There's room for improvement.`;
+  } else {
+    summary += `Only ${productivityRatio.toFixed(0)}% of your time was productive. Consider reducing distracting apps.`;
+  }
+
+  if (topApps.length > 0) {
+    summary += ` Your most used app was ${topApps[0].name} (${topApps[0].minutes} minutes).`;
+  }
+
+  // Generate personalized nudges based on profile and usage
+  const nudges: string[] = [];
+  
+  if (profile.goal) {
+    if (profile.goal.toLowerCase().includes('coding') && productiveTime < 60) {
+      nudges.push(`To achieve your ${profile.goal} goal, try to spend at least 1 hour daily on coding-related apps.`);
+    }
+    if (profile.goal.toLowerCase().includes('fitness') && !apps.some(app => app.name.toLowerCase().includes('fitness'))) {
+      nudges.push(`Consider using fitness apps to track your ${profile.goal} progress.`);
+    }
+    if (profile.goal.toLowerCase().includes('reading') && !apps.some(app => app.name.toLowerCase().includes('read'))) {
+      nudges.push(`Add reading apps to support your ${profile.goal} goal.`);
+    }
+  }
+
+  if (distractingTime > 120) {
+    nudges.push(`You spent ${distractingTime} minutes on potentially distracting apps. Try setting time limits.`);
+  }
+
+  if (profile.distraction && profile.distraction.toLowerCase().includes('morning') && usage.date) {
+    nudges.push('Since you get distracted in the morning, consider using focus mode during your first few hours.');
+  }
+
+  if (nudges.length === 0) {
+    nudges.push('Keep up the good work! Try to maintain this balance between productive and leisure time.');
+  }
+
+  // Generate alternatives based on user's skill and goal
+  const alternatives: Array<{ type: string; title: string; url?: string; description?: string }> = [];
+  
+  if (profile.skill) {
+    const skill = profile.skill.toLowerCase();
+    if (skill.includes('dsa') || skill.includes('algorithm') || skill.includes('data structure')) {
+      alternatives.push({
+        type: 'Video',
+        title: 'DSA Practice Videos',
+        url: `https://www.youtube.com/results?search_query=${encodeURIComponent(profile.skill)}+tutorial`,
+        description: 'Structured learning videos for Data Structures and Algorithms'
+      });
+    }
+    if (skill.includes('coding') || skill.includes('programming')) {
+      alternatives.push({
+        type: 'Practice',
+        title: 'Coding Challenges',
+        url: 'https://leetcode.com',
+        description: 'Practice coding problems to improve your skills'
+      });
+    }
+    if (skill.includes('web') || skill.includes('javascript') || skill.includes('react')) {
+      alternatives.push({
+        type: 'Tutorial',
+        title: 'Web Development Course',
+        url: `https://www.youtube.com/results?search_query=${encodeURIComponent(profile.skill)}+course`,
+        description: 'Comprehensive web development tutorials'
+      });
+    }
+  }
+
+  // Add general productivity alternatives
+  if (distractingTime > productiveTime) {
+    alternatives.push({
+      type: 'App',
+      title: 'Focus Timer',
+      description: 'Use Pomodoro technique to improve focus and productivity'
+    });
+  }
+
   return {
-    summary: 'You spent 2h on Instagram at night, this impacts sleep.',
-    nudges: ['Move your phone outside the bedroom.'],
-    alternatives: [
-      { type: 'video', title: 'DSA Crash Course', url: 'https://youtube.com/example' },
-      { type: 'task', title: 'Leetcode 10 questions', description: 'Use that 2h for practice.' },
-    ],
+    summary,
+    nudges,
+    alternatives,
   };
 }
 
@@ -77,102 +199,188 @@ export async function getAIRecommendations(
   userProfile: UserProfileInput,
   usageLogs: UsageLogsInput
 ): Promise<RecommendationItem[]> {
-  const apiKey = process.env.CEREBRUS_API_KEY;
+  // Check if we have API key configured (server-side only)
+  let apiKey: string | undefined;
+  let url: string = 'https://api.cerebrus.ai/v1/generate';
+  
+  try {
+    // This will only work on server-side
+    apiKey = process?.env?.CEREBRUS_API_KEY;
+    url = process?.env?.CEREBRUS_API_URL || 'https://api.cerebrus.ai/v1/generate';
+  } catch {
+    // Running on client-side or process is not available
+    apiKey = undefined;
+  }
+  
+  // If no API key, generate fallback recommendations based on user profile
   if (!apiKey) {
-    // Fail fast and remain safe: return a reasonable fallback
-    return [
-      {
-        title: 'Set a clear daily goal',
-        description: 'Define one concrete task for today and focus a 30-minute session on it.',
+    return generateFallbackRecommendations(userProfile, usageLogs);
+  }
+  
+  try {
+    // Construct a compact prompt; the actual schema depends on the real API
+    const payload = {
+      model: 'llama-small', // small, fast LLaMA variant
+      task: 'recommendations',
+      max_suggestions: 3,
+      input: {
+        profile: userProfile,
+        usage: usageLogs,
+        instructions:
+          'Return exactly 3 actionable, personalized suggestions as an array. Each item must have {title, description, link?}. Keep titles short and descriptions under 160 chars.',
       },
-      {
-        title: 'Reduce night scrolling',
-        description: 'Enable Do Not Disturb after 10 PM and charge your phone outside the bedroom.',
-        link: 'https://support.google.com/android/answer/9068112?hl=en',
+    } as const;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
       },
-      {
-        title: 'Replace 20 minutes of social media',
-        description: 'Pick a quick alternative like a DSA practice set or a short walk.',
-      },
-    ];
+      body: JSON.stringify(payload),
+      // Keep modest timeout behavior via AbortController if needed later
+    });
+
+    if (!res.ok) {
+      // On API error, return fallback recommendations
+      return generateFallbackRecommendations(userProfile, usageLogs);
+    }
+
+    // Expected response structure: { suggestions: RecommendationItem[] }
+    // Be defensive if the API returns unexpected payloads
+    const data = (await res.json().catch(() => null)) as
+      | { suggestions?: RecommendationItem[] }
+      | null;
+
+    const suggestions = Array.isArray(data?.suggestions) ? data!.suggestions : [];
+
+    // Normalize and cap to 3
+    const normalized = suggestions
+      .map((s) => ({
+        title: String((s as any).title || '').slice(0, 80),
+        description: String((s as any).description || '').slice(0, 200),
+        link: (s as any).link ? String((s as any).link) : undefined,
+      }))
+      .filter((s) => s.title && s.description)
+      .slice(0, 3);
+
+    if (normalized.length >= 1) return normalized;
+  } catch (error) {
+    console.error('Error calling AI API:', error);
   }
 
-  const url = process.env.CEREBRUS_API_URL || 'https://api.cerebrus.ai/v1/generate';
-  // Construct a compact prompt; the actual schema depends on the real API
-  const payload = {
-    model: 'llama-small', // small, fast LLaMA variant
-    task: 'recommendations',
-    max_suggestions: 3,
-    input: {
-      profile: userProfile,
-      usage: usageLogs,
-      instructions:
-        'Return exactly 3 actionable, personalized suggestions as an array. Each item must have {title, description, link?}. Keep titles short and descriptions under 160 chars.',
-    },
-  } as const;
+  // Final fallback if API returns empty or fails
+  return generateFallbackRecommendations(userProfile, usageLogs);
+}
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(payload),
-    // Keep modest timeout behavior via AbortController if needed later
-  });
+// Generate intelligent fallback recommendations based on user profile
+function generateFallbackRecommendations(
+  userProfile: UserProfileInput,
+  usageLogs: UsageLogsInput
+): RecommendationItem[] {
+  const recommendations: RecommendationItem[] = [];
+  
+  // Get user's skill and goal for targeted recommendations
+  const skill = userProfile.skill?.toLowerCase() || '';
+  const goal = userProfile.goal?.toLowerCase() || '';
+  
+  // Generate YouTube links following the format: www.youtube.com/[user's chosen task]
+  const generateYouTubeLink = (task: string): string => {
+    // Clean the task string and create a proper YouTube search URL
+    const cleanTask = task.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    const searchQuery = cleanTask.split(' ').join('+');
+    return `https://www.youtube.com/results?search_query=${searchQuery}+tutorial`;
+  };
 
-  if (!res.ok) {
-    // On API error, return safe defaults rather than throwing
-    return [
-      {
-        title: 'Try a 15-minute focus block',
-        description: 'Start small: one short focus session right now to build momentum.',
-      },
-      {
-        title: 'Mute high-distraction apps',
-        description: 'Temporarily silence notifications from your top 1–2 distracting apps.',
-      },
-      {
-        title: 'Evening wind-down',
-        description: 'Replace late-night scrolling with a 10-minute routine (stretching or reading).',
-      },
-    ];
+  // DSA-focused recommendations based on user's skill
+  if (skill.includes('dsa') || skill.includes('algorithm') || skill.includes('data structure')) {
+    const dsaTask = userProfile.skill || 'DSA';
+    recommendations.push({
+      title: 'DSA Practice Videos',
+      description: 'Comprehensive Data Structures and Algorithms tutorials tailored to your learning path',
+      link: generateYouTubeLink(dsaTask)
+    });
+    
+    // Add specific DSA topics
+    recommendations.push({
+      title: 'Array & String Problems',
+      description: 'Master fundamental DSA concepts with array and string manipulation',
+      link: generateYouTubeLink('array string DSA problems')
+    });
+  } else if (skill.includes('coding') || skill.includes('programming')) {
+    const codingTask = userProfile.skill || 'coding';
+    recommendations.push({
+      title: 'Coding Practice Videos',
+      description: 'Step-by-step coding tutorials and problem-solving techniques',
+      link: generateYouTubeLink(codingTask)
+    });
+  } else if (skill) {
+    recommendations.push({
+      title: `${userProfile.skill} Learning Videos`,
+      description: `Curated video content for mastering ${userProfile.skill}`,
+      link: generateYouTubeLink(userProfile.skill || 'programming')
+    });
   }
-
-  // Expected response structure: { suggestions: RecommendationItem[] }
-  // Be defensive if the API returns unexpected payloads
-  const data = (await res.json().catch(() => null)) as
-    | { suggestions?: RecommendationItem[] }
-    | null;
-
-  const suggestions = Array.isArray(data?.suggestions) ? data!.suggestions : [];
-
-  // Normalize and cap to 3
-  const normalized = suggestions
-    .map((s) => ({
-      title: String((s as any).title || '').slice(0, 80),
-      description: String((s as any).description || '').slice(0, 200),
-      link: (s as any).link ? String((s as any).link) : undefined,
-    }))
-    .filter((s) => s.title && s.description)
-    .slice(0, 3);
-
-  if (normalized.length >= 1) return normalized;
-
-  // Final fallback if API returns empty
-  return [
-    {
-      title: 'Block a key distraction for 30 minutes',
-      description: 'Use app timers or focus mode to pause your highest-usage app temporarily.',
-    },
-    {
-      title: 'Pomodoro with a purpose',
-      description: 'Pick one micro-task and do a 25-minute deep-focus session to complete it.',
-      link: '/focus',
-    },
-    {
-      title: 'Pre-bed routine',
-      description: 'Set a phone-free window 30 minutes before sleep to improve rest quality.',
-    },
-  ];
+  
+  // Goal-based recommendations with task-specific links
+  if (goal.includes('coding') || goal.includes('programming')) {
+    recommendations.push({
+      title: 'Coding Challenge Platform',
+      description: 'Practice coding problems and improve your programming skills',
+      link: 'https://leetcode.com'
+    });
+    
+    // Add DSA-specific coding content if not already added
+    if (!skill.includes('dsa') && recommendations.length < 3) {
+      recommendations.push({
+        title: 'DSA for Coding Interviews',
+        description: 'Essential data structures and algorithms for technical interviews',
+        link: generateYouTubeLink('DSA coding interview preparation')
+      });
+    }
+  } else if (goal.includes('fitness')) {
+    const fitnessTask = userProfile.goal || 'fitness';
+    recommendations.push({
+      title: 'Fitness Workout Videos',
+      description: 'Guided workout sessions to help you achieve your fitness goals',
+      link: generateYouTubeLink(fitnessTask)
+    });
+  } else if (goal.includes('reading')) {
+    const readingTask = userProfile.goal || 'reading';
+    recommendations.push({
+      title: 'Reading Productivity Tips',
+      description: 'Techniques to improve reading speed and comprehension',
+      link: generateYouTubeLink(readingTask + ' productivity tips')
+    });
+  }
+  
+  // Add task-specific recommendations based on combined skill and goal
+  if (skill && goal && recommendations.length < 3) {
+    const combinedTask = `${userProfile.skill} ${userProfile.goal}`;
+    recommendations.push({
+      title: `${userProfile.skill} for ${userProfile.goal}`,
+      description: `Targeted content combining your skill focus with your main goal`,
+      link: generateYouTubeLink(combinedTask)
+    });
+  }
+  
+  // Add general productivity recommendation if we have less than 3
+  if (recommendations.length < 3) {
+    recommendations.push({
+      title: 'Focus & Productivity Techniques',
+      description: 'Learn proven methods to boost your focus and productivity',
+      link: generateYouTubeLink('productivity techniques focus')
+    });
+  }
+  
+  // Ensure we have exactly 3 recommendations
+  while (recommendations.length < 3) {
+    recommendations.push({
+      title: 'Personal Development',
+      description: 'Resources for continuous learning and self-improvement',
+      link: 'https://www.youtube.com/results?search_query=personal+development'
+    });
+  }
+  
+  return recommendations.slice(0, 3);
 }
