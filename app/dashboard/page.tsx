@@ -286,7 +286,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <h3 className="font-medium">Today's Focus Sessions</h3>
+                <h3 className="font-medium">Today&apos;s Focus Sessions</h3>
                 {todaySessions.length === 0 ? (
                   <p className="text-gray-600 text-sm">No focus sessions yet today.</p>
                 ) : (
@@ -310,7 +310,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold">Today's Insights</h2>
+              <h2 className="text-lg font-semibold">Today&apos;s Insights</h2>
               {insightsLoading ? (
                 <p className="text-gray-600 text-sm">Loading insights...</p>
               ) : !insights || insights.length === 0 ? (
