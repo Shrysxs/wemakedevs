@@ -10,12 +10,20 @@ interface DashboardData {
   topApps: AppUsage[];
 }
 
+type Suggestion = {
+  title: string;
+  description: string;
+  link?: string;
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<DashboardData | null>(null);
+  const [insights, setInsights] = useState<Suggestion[] | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const init = async () => {
@@ -46,6 +54,68 @@ export default function DashboardPage() {
     };
     init();
   }, [router]);
+
+  useEffect(() => {
+    const runInsights = async () => {
+      if (!userId) return;
+      setInsightsLoading(true);
+      try {
+        const today = new Date().toISOString().split('T')[0];
+
+        // 1) Try to get today's insights directly from Supabase
+        const { data: row, error } = await supabase
+          .from('insights_daily')
+          .select('suggestions')
+          .eq('user_id', userId)
+          .eq('date', today)
+          .maybeSingle();
+
+        if (error && (error as any).code !== 'PGRST116') {
+          throw error;
+        }
+
+        if (row?.suggestions && Array.isArray(row.suggestions)) {
+          setInsights(row.suggestions as Suggestion[]);
+          return;
+        }
+
+        // 2) If not found, request generation via API with Bearer token
+        const { data: sessionRes } = await supabase.auth.getSession();
+        const token = sessionRes.session?.access_token;
+
+        if (!token) {
+          // Can't generate without a token; leave insights null
+          setInsights(null);
+          return;
+        }
+
+        const genRes = await fetch('/api/generate-insights', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!genRes.ok) {
+          // Non-fatal: we simply show fallback text
+          setInsights(null);
+          return;
+        }
+
+        const genJson = await genRes.json();
+        const suggestions: Suggestion[] | undefined = genJson?.data;
+        setInsights(Array.isArray(suggestions) ? suggestions : null);
+      } catch (e) {
+        // Non-fatal; keep dashboard usable
+        setInsights(null);
+      } finally {
+        setInsightsLoading(false);
+      }
+    };
+
+    runInsights();
+  }, [userId]);
 
   const topThree = (data?.topApps || []).slice(0, 3);
 
@@ -97,9 +167,38 @@ export default function DashboardPage() {
                 </ul>
               )}
             </div>
+
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Today's Insights</h2>
+              {insightsLoading ? (
+                <p className="text-gray-600 text-sm">Loading insights...</p>
+              ) : !insights || insights.length === 0 ? (
+                <p className="text-gray-600 text-sm">No insights for today yet.</p>
+              ) : (
+                <ul className="divide-y rounded border">
+                  {insights.map((s, idx) => (
+                    <li key={`${s.title}-${idx}`} className="p-3 space-y-1">
+                      <p className="font-medium">{s.title}</p>
+                      <p className="text-sm text-gray-700">{s.description}</p>
+                      {s.link && (
+                        <a
+                          href={s.link}
+                          target={s.link.startsWith('http') ? '_blank' : undefined}
+                          rel={s.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                          className="text-sm text-indigo-600 hover:underline"
+                        >
+                          Learn more
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
+
