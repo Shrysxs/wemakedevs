@@ -37,10 +37,37 @@ export default function FocusPage() {
       }
       const uid = data.user?.id ?? null;
       setUserId(uid);
-      if (!uid) router.replace('/login');
+      // If not logged in, send to login
+      if (!uid) {
+        router.replace('/login');
+        return;
+      }
+
+      // Check for active focus session
+      const { data: activeSession, error: sessionError } = await supabase
+        .from('focus_sessions')
+        .select('id, started_at')
+        .eq('user_id', uid)
+        .is('ended_at', null)
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!sessionError && activeSession) {
+        // Resume active session
+        setSessionId(activeSession.id);
+        const startTime = new Date(activeSession.started_at).getTime();
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - startTime) / 1000);
+        const totalSeconds = selectedMinutes * 60;
+        const remaining = Math.max(0, totalSeconds - elapsedSeconds);
+        
+        setRemainingSec(remaining);
+        setInProgress(true);
+      }
     };
     init();
-  }, [router]);
+  }, [router, selectedMinutes]);
 
   // Countdown effect
   useEffect(() => {
@@ -121,7 +148,6 @@ export default function FocusPage() {
       <div className="max-w-xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Focus</h1>
-          <button className="px-4 py-2 border rounded" onClick={() => router.push('/dashboard')}>Dashboard</button>
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -130,17 +156,20 @@ export default function FocusPage() {
         {!inProgress ? (
           <div className="space-y-4">
             <p className="text-sm text-gray-700">Choose a session length</p>
-            <div className="flex gap-2">
-              {[15, 30, 60].map((m) => (
+            <div className="grid grid-cols-3 gap-2">
+              {[20, 25, 45].map((m) => (
                 <button
                   key={m}
-                  className={`px-3 py-2 border rounded ${selectedMinutes === m ? 'bg-black text-white' : ''}`}
+                  className={`px-3 py-2 border rounded transition-colors ${selectedMinutes === m ? 'bg-indigo-600 text-white border-indigo-600' : 'hover:border-indigo-300'}`}
                   onClick={() => setSelectedMinutes(m)}
                   disabled={loading}
                 >
                   {m}m
                 </button>
               ))}
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Pomodoro sessions: 20min (short), 25min (classic), 45min (deep work)
             </div>
             <button
               onClick={() => startSession(selectedMinutes)}
@@ -153,24 +182,66 @@ export default function FocusPage() {
         ) : (
           <div className="space-y-6">
             <div className="rounded border p-6 text-center">
-              <div className="text-sm text-gray-600">Time Remaining</div>
-              <div className="text-5xl font-bold tracking-widest">{formatTime(remainingSec)}</div>
-              <div className="mt-2 text-gray-700">Session: {selectedMinutes} minutes</div>
+              <div className="text-sm text-gray-600 mb-4">Focus Session Active</div>
+              
+              {/* Circular Progress Timer */}
+              <div className="relative w-48 h-48 mx-auto mb-6">
+                <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
+                  {/* Background circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    className="text-gray-200"
+                  />
+                  {/* Progress circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                    className="text-indigo-600 transition-all duration-1000 ease-linear"
+                    strokeDasharray={`${2 * Math.PI * 45}`}
+                    strokeDashoffset={`${2 * Math.PI * 45 * (1 - (remainingSec / (selectedMinutes * 60)))}`}
+                  />
+                </svg>
+                
+                {/* Timer display in center */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-4xl font-bold text-gray-900 tracking-wider">
+                    {formatTime(remainingSec)}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    {Math.floor(remainingSec / 60)}:{(remainingSec % 60).toString().padStart(2, '0')} remaining
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-gray-700">
+                {selectedMinutes}min Pomodoro Session
+              </div>
+              
+              {/* Progress bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div 
+                  className="bg-indigo-600 h-2 rounded-full transition-all duration-1000 ease-linear"
+                  style={{ width: `${((selectedMinutes * 60 - remainingSec) / (selectedMinutes * 60)) * 100}%` }}
+                ></div>
+              </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex justify-center">
               <button
                 onClick={endSession}
-                className="px-4 py-2 rounded bg-red-600 text-white disabled:opacity-50"
+                className="px-6 py-3 rounded bg-red-600 text-white disabled:opacity-50 hover:bg-red-700 transition-colors"
                 disabled={loading}
               >
-                End Session
-              </button>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="px-4 py-2 border rounded"
-                disabled={loading}
-              >
-                Go to Dashboard
+                {loading ? 'Ending...' : 'End Session'}
               </button>
             </div>
           </div>

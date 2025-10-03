@@ -16,7 +16,16 @@ export async function POST(request: NextRequest) {
     const row = await startFocusSession(userId);
 
     return NextResponse.json(
-      { sessionId: row.id, started_at: row.started_at },
+      { 
+        success: true,
+        data: {
+          id: row.id,
+          userId: row.user_id,
+          startedAt: row.started_at,
+          duration: 0, // Will be calculated when ended
+          reclaimed: 0 // Will be calculated when ended
+        }
+      },
       { status: 200 }
     );
   } catch (error: any) {

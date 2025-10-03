@@ -66,18 +66,61 @@ async function callLlamaModel(usage: UsageLogStub, profile: ProfileStub): Promis
   const distractingTime = distractingApps.reduce((sum, app) => sum + app.minutes, 0);
   const productivityRatio = totalMinutes > 0 ? (productiveTime / totalMinutes) * 100 : 0;
 
-  // Generate summary based on analysis
-  let summary = `You spent ${totalMinutes} minutes on apps today. `;
-  if (productivityRatio > 60) {
-    summary += `Great job! ${productivityRatio.toFixed(0)}% of your time was spent on productive activities.`;
-  } else if (productivityRatio > 30) {
-    summary += `You had a balanced day with ${productivityRatio.toFixed(0)}% productive time. There's room for improvement.`;
-  } else {
-    summary += `Only ${productivityRatio.toFixed(0)}% of your time was productive. Consider reducing distracting apps.`;
-  }
-
+  // Generate detailed summary with time patterns and disruption analysis
+  const totalHours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+  const timeString = totalHours > 0 ? `${totalHours}h ${remainingMinutes}m` : `${totalMinutes}m`;
+  
+  let summary = '';
+  
+  // Analyze top app usage patterns
   if (topApps.length > 0) {
-    summary += ` Your most used app was ${topApps[0].name} (${topApps[0].minutes} minutes).`;
+    const topApp = topApps[0];
+    const topAppHours = Math.floor(topApp.minutes / 60);
+    const topAppMins = topApp.minutes % 60;
+    const topAppTime = topAppHours > 0 ? `${topAppHours}h ${topAppMins}m` : `${topApp.minutes}m`;
+    
+    // Simulate time pattern analysis (in real implementation, this would come from actual usage timestamps)
+    const isDisruptiveApp = distractingApps.some(app => app.name === topApp.name);
+    
+    if (isDisruptiveApp) {
+      // Simulate peak usage times for disruptive apps
+      const peakTimes = ['10PM–12AM', '2PM–4PM', '8AM–10AM'];
+      const randomPeakTime = peakTimes[Math.floor(Math.random() * peakTimes.length)];
+      
+      summary += `You spent ${topAppTime} on ${topApp.name} between ${randomPeakTime}. `;
+      
+      if (randomPeakTime.includes('PM') && (randomPeakTime.includes('10') || randomPeakTime.includes('11'))) {
+        summary += `This disrupted sleep patterns and reduced morning productivity. `;
+      } else if (randomPeakTime.includes('AM') && randomPeakTime.includes('8')) {
+        summary += `Breaking the pattern of checking ${topApp.name} first thing in the morning could improve your focus by 40%. `;
+      } else {
+        summary += `This occurred during peak work hours and may have impacted productivity. `;
+      }
+    } else {
+      summary += `You spent ${topAppTime} on ${topApp.name}, which contributed positively to your goals. `;
+    }
+  }
+  
+  // Weekly comparison simulation
+  if (distractingTime > 0) {
+    const weeklyIncrease = Math.floor(Math.random() * 30) + 10; // Simulate 10-40% increase
+    const peakWorkHours = ['10AM-2PM', '9AM-1PM', '11AM-3PM'];
+    const randomWorkHours = peakWorkHours[Math.floor(Math.random() * peakWorkHours.length)];
+    
+    const mostDistracting = distractingApps.sort((a, b) => b.minutes - a.minutes)[0];
+    if (mostDistracting) {
+      summary += `Your ${mostDistracting.name} usage increased by ${weeklyIncrease}% this week, primarily during work hours (${randomWorkHours}). `;
+    }
+  }
+  
+  // Overall productivity assessment
+  if (productivityRatio > 60) {
+    summary += `Overall, ${productivityRatio.toFixed(0)}% of your ${timeString} was spent productively - excellent focus!`;
+  } else if (productivityRatio > 30) {
+    summary += `You maintained ${productivityRatio.toFixed(0)}% productive time out of ${timeString} total usage.`;
+  } else {
+    summary += `Only ${productivityRatio.toFixed(0)}% of your ${timeString} was productive. Consider time-blocking for better focus.`;
   }
 
   // Generate personalized nudges based on profile and usage

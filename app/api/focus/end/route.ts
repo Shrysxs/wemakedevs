@@ -11,7 +11,23 @@ export async function POST(request: NextRequest) {
     }
 
     const updated = await endFocusSession(userId, sessionId);
-    return NextResponse.json({ ended_at: updated.ended_at }, { status: 200 });
+    
+    // Calculate duration in minutes
+    const startTime = new Date(updated.started_at).getTime();
+    const endTime = new Date(updated.ended_at!).getTime();
+    const durationMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+    
+    return NextResponse.json({ 
+      success: true,
+      data: {
+        id: updated.id,
+        userId: updated.user_id,
+        startedAt: updated.started_at,
+        endedAt: updated.ended_at,
+        duration: durationMinutes,
+        reclaimed: durationMinutes // For now, reclaimed = duration
+      }
+    }, { status: 200 });
   } catch (error: any) {
     console.error('Error in /api/focus/end:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
