@@ -211,15 +211,18 @@ export default function DashboardPage() {
   const topThree = (data?.topApps || []).slice(0, 3);
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <div>
+            <h1 className="reclaim-brand-small">RECLAIM</h1>
+            <p className="text-gray-400 text-sm mt-1">Dashboard</p>
+          </div>
           <button
             onClick={() => router.push('/insights')}
-            className="px-4 py-2 rounded bg-indigo-600 text-white"
+            className="btn-accent"
           >
-            Get My AI Insights
+            AI Insights
           </button>
         </div>
 
@@ -227,113 +230,114 @@ export default function DashboardPage() {
         {error && <p className="text-red-600">{error}</p>}
 
         {!loading && !error && (
-          <div className="space-y-6">
-            <div className="rounded border p-6 flex items-center justify-between">
+          <div className="space-y-8">
+            <div className="card-minimal flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total minutes today</p>
-                <p className="text-4xl font-bold">{data?.totalMinutes ?? 0}</p>
+                <p className="text-sm text-gray-400">Total minutes today</p>
+                <p className="text-4xl font-bold text-white">{data?.totalMinutes ?? 0}</p>
               </div>
               <div>
                 <button
                   onClick={() => router.push('/usage')}
-                  className="px-4 py-2 border rounded"
+                  className="btn-secondary"
                 >
                   Add Usage
                 </button>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold">Top apps today</h2>
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-white">Top apps today</h2>
               {topThree.length === 0 ? (
-                <p className="text-gray-600 text-sm">No usage logged yet.</p>
+                <p className="text-gray-400 text-sm">No usage logged yet.</p>
               ) : (
-                <ul className="divide-y rounded border">
+                <div className="card-minimal">
                   {topThree.map((app) => (
-                    <li key={app.name} className="flex items-center justify-between p-3">
-                      <span className="font-medium">{app.name}</span>
-                      <span className="text-sm text-gray-700">{app.minutes} min</span>
-                    </li>
+                    <div key={app.name} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
+                      <span className="font-medium text-white">{app.name}</span>
+                      <span className="text-sm text-gray-400">{app.minutes} min</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
 
             {/* Focus controls */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold">Focus</h2>
-              <div className="rounded border p-4 flex items-center justify-between">
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-white">Focus</h2>
+              <div className="card-minimal flex items-center justify-between">
                 <div>
                   {activeSessionId ? (
                     <>
-                      <p className="text-sm text-gray-600">Focus session active</p>
-                      <p className="text-2xl font-semibold">{minutesSince(activeStartedAt!)} min</p>
+                      <p className="text-sm text-gray-400">Focus session active</p>
+                      <p className="text-2xl font-semibold text-white">{minutesSince(activeStartedAt!)} min</p>
                     </>
                   ) : (
-                    <p className="text-sm text-gray-600">No active focus session</p>
+                    <p className="text-sm text-gray-400">No active focus session</p>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {!activeSessionId ? (
-                    <button onClick={startFocus} className="px-4 py-2 rounded bg-green-600 text-white">
+                    <button onClick={startFocus} className="btn-success">
                       Start Focus
                     </button>
                   ) : (
-                    <button onClick={endFocus} className="px-4 py-2 rounded bg-rose-600 text-white">
+                    <button onClick={endFocus} className="btn-danger">
                       End Focus
                     </button>
                   )}
                 </div>
               </div>
-              <div className="space-y-2">
-                <h3 className="font-medium">Today&apos;s Focus Sessions</h3>
+              <div className="space-y-3">
+                <h3 className="font-medium text-white">Today's Focus Sessions</h3>
                 {todaySessions.length === 0 ? (
-                  <p className="text-gray-600 text-sm">No focus sessions yet today.</p>
+                  <p className="text-gray-400 text-sm">No focus sessions yet today.</p>
                 ) : (
-                  <ul className="divide-y rounded border">
+                  <div className="card-minimal">
                     {todaySessions.map((s) => (
-                      <li key={s.id} className="p-3 flex items-center justify-between">
-                        <span className="text-sm text-gray-700">
+                      <div key={s.id} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
+                        <span className="text-sm text-gray-300">
                           {new Date(s.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           {s.ended_at && ' – '}
                           {s.ended_at
                             ? new Date(s.ended_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                             : ''}
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-white">
                           {durationBetween(s.started_at, s.ended_at)} min
                         </span>
-                      </li>) )}
-                  </ul>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
 
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold">Today&apos;s Insights</h2>
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-white">Today's Insights</h2>
               {insightsLoading ? (
-                <p className="text-gray-600 text-sm">Loading insights...</p>
+                <p className="text-gray-400 text-sm">Loading insights...</p>
               ) : !insights || insights.length === 0 ? (
-                <p className="text-gray-600 text-sm">No insights for today yet.</p>
+                <p className="text-gray-400 text-sm">No insights for today yet.</p>
               ) : (
-                <ul className="divide-y rounded border">
+                <div className="card-minimal space-y-4">
                   {insights.map((s, idx) => (
-                    <li key={`${s.title}-${idx}`} className="p-3 space-y-1">
-                      <p className="font-medium">{s.title}</p>
-                      <p className="text-sm text-gray-700">{s.description}</p>
+                    <div key={`${s.title}-${idx}`} className="space-y-2">
+                      <p className="font-medium text-white">{s.title}</p>
+                      <p className="text-sm text-gray-300">{s.description}</p>
                       {s.link && (
                         <a
                           href={s.link}
                           target={s.link.startsWith('http') ? '_blank' : undefined}
                           rel={s.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                          className="text-sm text-indigo-600 hover:underline"
+                          className="text-sm text-blue-400 hover:text-blue-300 underline transition-colors"
                         >
                           Learn more
                         </a>
                       )}
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>

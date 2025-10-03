@@ -3,21 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body {
+html, body {
+  height: 100%;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+#__next {
+  min-height: 100vh;
+  background: #000000;
 }
 
 @layer utilities {
@@ -27,58 +33,65 @@ body {
 }
 
 @layer components {
-  /* Ensure proper contrast for buttons and elements */
-  .bg-black {
-    @apply text-white;
+  /* RECLAIM Brand Typography */
+  .reclaim-brand {
+    @apply text-white font-black text-4xl tracking-wider;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.1em;
   }
   
-  .bg-white {
-    @apply text-black;
+  .reclaim-brand-small {
+    @apply text-white font-black text-2xl tracking-wider;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.1em;
   }
   
-  .bg-gray-900 {
-    @apply text-white;
-  }
-  
-  .bg-gray-800 {
-    @apply text-white;
-  }
-  
-  .bg-gray-700 {
-    @apply text-white;
-  }
-  
-  .bg-gray-100 {
-    @apply text-black;
-  }
-  
-  .bg-gray-50 {
-    @apply text-black;
-  }
-  
-  /* Button variants with proper contrast */
+  /* Minimal Button Styles */
   .btn-primary {
-    @apply bg-black text-white px-4 py-2 rounded;
+    @apply bg-white text-black px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-gray-100;
   }
   
   .btn-secondary {
-    @apply bg-white text-black border border-gray-300 px-4 py-2 rounded;
-  }
-  
-  .btn-success {
-    @apply bg-green-600 text-white px-4 py-2 rounded;
+    @apply bg-transparent text-white border-2 border-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-white hover:text-black;
   }
   
   .btn-danger {
-    @apply bg-red-600 text-white px-4 py-2 rounded;
+    @apply bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-red-700;
   }
   
-  /* Card and container styles */
-  .card {
-    @apply bg-white text-black border rounded p-4;
+  .btn-success {
+    @apply bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-green-700;
   }
   
-  .card-dark {
-    @apply bg-gray-900 text-white border border-gray-700 rounded p-4;
+  .btn-accent {
+    @apply bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-blue-700;
+  }
+  
+  /* Minimal Card Styles */
+  .card-minimal {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-6 text-white;
+  }
+  
+  .card-minimal-white {
+    @apply bg-white border border-gray-200 rounded-xl p-6 text-black;
+  }
+  
+  /* Input Styles */
+  .input-minimal {
+    @apply bg-transparent border-2 border-gray-700 text-white px-4 py-3 rounded-lg focus:border-white focus:outline-none transition-colors duration-200;
+  }
+  
+  .input-minimal::placeholder {
+    @apply text-gray-400;
+  }
+  
+  /* Centered Container */
+  .container-centered {
+    @apply min-h-screen flex items-center justify-center bg-black;
+  }
+  
+  /* Auth Form Styles */
+  .auth-form {
+    @apply bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md;
   }
 }

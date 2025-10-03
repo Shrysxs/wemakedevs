@@ -13,7 +13,8 @@ import {
   CartesianGrid,
   BarChart,
   Bar,
-  Legend
+  Legend,
+  Cell
 } from 'recharts';
 
 interface ReportResponse {
@@ -76,10 +77,21 @@ export default function ReportPage() {
     return report.daily.map((min, idx) => ({ day: dayLabels[idx], minutes: min }));
   }, [report, dayLabels]);
 
+  // Generate different colors for each app
+  const appColors = [
+    '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+    '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#14b8a6',
+    '#f43f5e', '#3b82f6', '#a855f7', '#22c55e', '#eab308'
+  ];
+
   const barData = useMemo(() => {
     if (!report) return [];
     // Bar chart expects an array of objects with consistent keys
-    return report.apps.map((a) => ({ name: a.name, minutes: a.minutes }));
+    return report.apps.map((a, index) => ({ 
+      name: a.name, 
+      minutes: a.minutes,
+      fill: appColors[index % appColors.length] // Assign color based on index
+    }));
   }, [report]);
 
   const under5hDays = useMemo(() => {
@@ -92,13 +104,34 @@ export default function ReportPage() {
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Weekly Report</h1>
-          <button className="px-4 py-2 border rounded" onClick={() => router.push('/dashboard')}>Dashboard</button>
+          <button 
+            className="px-4 py-2 border rounded hover:bg-gray-50 transition-colors" 
+            onClick={() => window.location.reload()}
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Refresh Data'}
+          </button>
         </div>
 
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-600">{error}</p>}
 
         {!loading && !error && report && (
+          <>
+            {/* No Data Message */}
+            {report.apps.length === 0 && (
+              <div className="rounded border p-8 bg-yellow-50 border-yellow-200 text-center">
+                <h3 className="text-lg font-semibold text-yellow-800 mb-2">No Usage Data Found</h3>
+                <p className="text-yellow-700 mb-4">
+                  No app usage data has been recorded for the last 7 days. 
+                </p>
+                <p className="text-sm text-yellow-600">
+                  Go to the <strong>Usage</strong> page to add your daily app usage data, then return here to see your weekly report and charts.
+                </p>
+              </div>
+            )}
+            
+            {report.apps.length > 0 && (
           <div className="space-y-8">
             {/* Line Chart */}
             <div className="rounded border p-4 bg-white">
@@ -122,13 +155,32 @@ export default function ReportPage() {
               <h2 className="text-lg font-semibold mb-4">App Breakdown (Last 7 Days)</h2>
               <div className="w-full h-64">
                 <ResponsiveContainer>
-                  <BarChart data={barData} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
+                  <BarChart 
+                    data={barData} 
+                    margin={{ top: 10, right: 20, bottom: 0, left: 0 }}
+                    barCategoryGap="20%"
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fontSize: 12 }}
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="minutes" fill="#10b981" name="Minutes" />
+                    <Bar 
+                      dataKey="minutes" 
+                      name="Minutes"
+                      maxBarSize={40}
+                    >
+                      {barData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={appColors[index % appColors.length]} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -156,6 +208,8 @@ export default function ReportPage() {
               </div>
             </div>
           </div>
+            )}
+          </>
         )}
       </div>
     </div>

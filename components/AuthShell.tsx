@@ -17,7 +17,11 @@ function NavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className={`block px-3 py-2 rounded hover:bg-gray-200 ${isActive ? 'bg-gray-200 font-medium' : ''}`}
+      className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
+        isActive 
+          ? 'bg-white text-black font-semibold' 
+          : 'text-gray-300 hover:text-white hover:bg-gray-800'
+      }`}
     >
       {label}
     </Link>
@@ -65,8 +69,11 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
   // While auth status unknown, avoid flashing protected UI
   if (authed === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-sm text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center">
+          <h1 className="reclaim-brand mb-4">RECLAIM</h1>
+          <div className="text-sm text-gray-400">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -75,11 +82,14 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
   if (!authed) return null;
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-black">
       {/* Sidebar */}
-      <aside className="w-60 border-r bg-white p-4 space-y-2">
-        <div className="px-2 py-1 text-sm font-semibold text-gray-700">Reclaim</div>
-        <nav className="space-y-1">
+      <aside className="w-64 border-r border-gray-800 bg-gray-900 p-6 space-y-6">
+        <div className="px-2 py-2">
+          <h1 className="reclaim-brand-small">RECLAIM</h1>
+          <p className="text-gray-400 text-xs mt-1">Take back control</p>
+        </div>
+        <nav className="space-y-2">
           <NavLink href="/dashboard" label="Dashboard" />
           <NavLink href="/usage" label="Usage" />
           <NavLink href="/insights" label="Insights" />
@@ -91,15 +101,15 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="h-12 border-b bg-white flex items-center justify-end px-4">
+        <header className="h-16 border-b border-gray-800 bg-black flex items-center justify-end px-6">
           <button
             onClick={handleLogout}
-            className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
+            className="btn-danger text-sm"
           >
             Logout
           </button>
         </header>
-        <main className="p-4">
+        <main className="flex-1 bg-black">
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
@@ -107,6 +117,7 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="h-full"
             >
               {children}
             </motion.div>

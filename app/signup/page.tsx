@@ -38,42 +38,72 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-semibold">Create your account</h1>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <div className="space-y-1">
-          <label className="block text-sm">Email</label>
-          <input
-            type="email"
-            className="w-full border rounded px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="container-centered p-6">
+      <div className="auth-form">
+        {/* RECLAIM Branding */}
+        <div className="text-center mb-8">
+          <h1 className="reclaim-brand">RECLAIM</h1>
+          <p className="text-gray-400 text-sm mt-2">Take back control of your time</p>
         </div>
-        <div className="space-y-1">
-          <label className="block text-sm">Password</label>
-          <input
-            type="password"
-            className="w-full border rounded px-3 py-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-black text-white rounded py-2 disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? 'Creating...' : 'Sign up'}
-        </button>
-        <p className="text-sm">
-          Already have an account? <a className="underline" href="/login">Log in</a>
-        </p>
-      </form>
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-semibold text-white">Create your account</h2>
+            <p className="text-gray-400 text-sm mt-2">Start your journey to better productivity</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Email</label>
+            <input
+              type="email"
+              className="input-minimal w-full"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Password</label>
+            <input
+              type="password"
+              className="input-minimal w-full"
+              placeholder="Create a password (min. 6 characters)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
+
+          <div className="text-center pt-4">
+            <p className="text-gray-400 text-sm">
+              Already have an account?{' '}
+              <a 
+                href="/login" 
+                className="text-white hover:text-gray-300 underline transition-colors"
+              >
+                Sign in
+              </a>
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
