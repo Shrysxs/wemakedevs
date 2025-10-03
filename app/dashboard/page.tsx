@@ -330,7 +330,7 @@ export default function DashboardPage() {
                           href={s.link}
                           target={s.link.startsWith('http') ? '_blank' : undefined}
                           rel={s.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                          className="text-sm text-blue-400 hover:text-blue-300 underline transition-colors"
+                          className="text-sm text-gray-300 hover:text-white underline transition-colors"
                         >
                           Learn more
                         </a>

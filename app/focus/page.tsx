@@ -160,7 +160,7 @@ export default function FocusPage() {
               {[20, 25, 45].map((m) => (
                 <button
                   key={m}
-                  className={`px-3 py-2 border rounded transition-colors ${selectedMinutes === m ? 'bg-indigo-600 text-white border-indigo-600' : 'hover:border-indigo-300'}`}
+                  className={`px-3 py-2 border rounded transition-colors ${selectedMinutes === m ? 'bg-gray-100 text-black border-gray-100' : 'hover:border-gray-300'}`}
                   onClick={() => setSelectedMinutes(m)}
                   disabled={loading}
                 >
@@ -173,7 +173,7 @@ export default function FocusPage() {
             </div>
             <button
               onClick={() => startSession(selectedMinutes)}
-              className="px-4 py-2 rounded bg-indigo-600 text-white disabled:opacity-50"
+              className="px-4 py-2 rounded bg-gray-100 text-black disabled:opacity-50"
               disabled={loading || !userId}
             >
               {loading ? 'Starting...' : 'Start Focus'}
@@ -206,7 +206,7 @@ export default function FocusPage() {
                     strokeWidth="3"
                     fill="none"
                     strokeLinecap="round"
-                    className="text-indigo-600 transition-all duration-1000 ease-linear"
+                    className="text-gray-300 transition-all duration-1000 ease-linear"
                     strokeDasharray={`${2 * Math.PI * 45}`}
                     strokeDashoffset={`${2 * Math.PI * 45 * (1 - (remainingSec / (selectedMinutes * 60)))}`}
                   />
@@ -230,7 +230,7 @@ export default function FocusPage() {
               {/* Progress bar */}
               <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
                 <div 
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-1000 ease-linear"
+                  className="bg-gray-300 h-2 rounded-full transition-all duration-1000 ease-linear"
                   style={{ width: `${((selectedMinutes * 60 - remainingSec) / (selectedMinutes * 60)) * 100}%` }}
                 ></div>
               </div>

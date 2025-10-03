@@ -4,26 +4,16 @@
 
 :root {
   --background: #000000;
-  --foreground: #ffffff;
+  --foreground: #F5F5F5;
+  --placeholder: #9CA3AF;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
+body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-weight: 400;
   line-height: 1.6;
-}
-
-#__next {
-  min-height: 100vh;
-  background: #000000;
 }
 
 @layer utilities {
@@ -33,65 +23,70 @@ html, body {
 }
 
 @layer components {
-  /* RECLAIM Brand Typography */
-  .reclaim-brand {
-    @apply text-white font-black text-4xl tracking-wider;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 0.1em;
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    color: #F5F5F5;
   }
   
-  .reclaim-brand-small {
-    @apply text-white font-black text-2xl tracking-wider;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 0.1em;
+  h1 { @apply text-3xl md:text-4xl; }
+  h2 { @apply text-2xl md:text-3xl; }
+  h3 { @apply text-xl md:text-2xl; }
+  
+  /* Input & Form Styling */
+  input, textarea, select {
+    @apply bg-gray-900 border border-gray-700 text-gray-100 rounded-lg px-4 py-3;
+    @apply focus:border-gray-500 focus:ring-0 focus:outline-none;
+    @apply transition-colors duration-200;
   }
   
-  /* Minimal Button Styles */
+  input::placeholder, textarea::placeholder {
+    color: #9CA3AF !important;
+  }
+  
+  /* Button Variants - No Blue */
   .btn-primary {
-    @apply bg-white text-black px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-gray-100;
+    @apply bg-gray-100 text-black px-6 py-3 rounded-lg font-medium;
+    @apply hover:bg-white transition-colors duration-200;
   }
   
   .btn-secondary {
-    @apply bg-transparent text-white border-2 border-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-white hover:text-black;
-  }
-  
-  .btn-danger {
-    @apply bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-red-700;
+    @apply bg-transparent text-gray-300 border border-gray-600 px-6 py-3 rounded-lg font-medium;
+    @apply hover:bg-gray-800 hover:border-gray-500 transition-colors duration-200;
   }
   
   .btn-success {
-    @apply bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-green-700;
+    @apply bg-green-600 text-white px-6 py-3 rounded-lg font-medium;
+    @apply hover:bg-green-700 transition-colors duration-200;
   }
   
-  .btn-accent {
-    @apply bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-blue-700;
+  .btn-danger {
+    @apply bg-red-600 text-white px-6 py-3 rounded-lg font-medium;
+    @apply hover:bg-red-700 transition-colors duration-200;
   }
   
-  /* Minimal Card Styles */
-  .card-minimal {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-6 text-white;
+  /* Card Styles */
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-6;
+    color: #F5F5F5;
   }
   
-  .card-minimal-white {
-    @apply bg-white border border-gray-200 rounded-xl p-6 text-black;
+  /* Override blue colors */
+  .bg-indigo-600 {
+    @apply bg-gray-100 text-black;
   }
   
-  /* Input Styles */
-  .input-minimal {
-    @apply bg-transparent border-2 border-gray-700 text-white px-4 py-3 rounded-lg focus:border-white focus:outline-none transition-colors duration-200;
+  .text-indigo-600 {
+    @apply text-gray-300;
   }
   
-  .input-minimal::placeholder {
-    @apply text-gray-400;
+  /* Link Styling */
+  a {
+    @apply text-gray-300 hover:text-white transition-colors duration-200;
   }
   
-  /* Centered Container */
-  .container-centered {
-    @apply min-h-screen flex items-center justify-center bg-black;
-  }
-  
-  /* Auth Form Styles */
-  .auth-form {
-    @apply bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md;
+  /* Remove focus rings */
+  *:focus {
+    @apply ring-0 outline-none;
   }
 }
