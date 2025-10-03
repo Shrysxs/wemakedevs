@@ -24,6 +24,11 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [insights, setInsights] = useState<Suggestion[] | null>(null);
   const [insightsLoading, setInsightsLoading] = useState<boolean>(true);
+  // Focus state
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeStartedAt, setActiveStartedAt] = useState<string | null>(null);
+  const [tick, setTick] = useState<number>(0); // forces re-render each minute
+  const [todaySessions, setTodaySessions] = useState<Array<{ id: string; started_at: string; ended_at: string | null }>>([]);
 
   useEffect(() => {
     const init = async () => {
@@ -117,6 +122,92 @@ export default function DashboardPage() {
     runInsights();
   }, [userId]);
 
+  // Load focus sessions (and detect active session)
+  useEffect(() => {
+    if (!userId) return;
+    const loadFocus = async () => {
+      // Detect active session
+      const { data: active, error: activeErr } = await supabase
+        .from('focus_sessions')
+        .select('id, started_at, ended_at')
+        .eq('user_id', userId)
+        .is('ended_at', null)
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!activeErr && active) {
+        setActiveSessionId(active.id);
+        setActiveStartedAt(active.started_at);
+      } else {
+        setActiveSessionId(null);
+        setActiveStartedAt(null);
+      }
+
+      // Load today's sessions
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1);
+      const { data: sessions, error } = await supabase
+        .from('focus_sessions')
+        .select('id, started_at, ended_at')
+        .eq('user_id', userId)
+        .gte('started_at', start.toISOString())
+        .lt('started_at', end.toISOString())
+        .order('started_at', { ascending: true });
+      if (!error && sessions) setTodaySessions(sessions as any);
+    };
+    loadFocus();
+  }, [userId, tick]);
+
+  // Timer tick every 30s to keep timer fresh (and durations in list for ongoing)
+  useEffect(() => {
+    if (!activeSessionId) return;
+    const i = setInterval(() => setTick((t) => t + 1), 30000);
+    return () => clearInterval(i);
+  }, [activeSessionId]);
+
+  const minutesSince = (iso: string) => {
+    const start = new Date(iso).getTime();
+    const now = Date.now();
+    return Math.max(0, Math.floor((now - start) / 60000));
+  };
+
+  const durationBetween = (startIso: string, endIso: string | null) => {
+    const start = new Date(startIso).getTime();
+    const end = endIso ? new Date(endIso).getTime() : Date.now();
+    return Math.max(0, Math.floor((end - start) / 60000));
+  };
+
+  const startFocus = async () => {
+    if (!userId || activeSessionId) return;
+    const res = await fetch('/api/focus/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) return;
+    const j = await res.json();
+    setActiveSessionId(j.sessionId);
+    setActiveStartedAt(j.started_at);
+    setTick((t) => t + 1);
+  };
+
+  const endFocus = async () => {
+    if (!userId || !activeSessionId) return;
+    const res = await fetch('/api/focus/end', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, sessionId: activeSessionId }),
+    });
+    if (!res.ok) return;
+    // const j = await res.json(); // ended_at not needed here
+    setActiveSessionId(null);
+    setActiveStartedAt(null);
+    setTick((t) => t + 1); // refresh list
+  };
+
   const topThree = (data?.topApps || []).slice(0, 3);
 
   return (
@@ -166,6 +257,56 @@ export default function DashboardPage() {
                   ))}
                 </ul>
               )}
+            </div>
+
+            {/* Focus controls */}
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Focus</h2>
+              <div className="rounded border p-4 flex items-center justify-between">
+                <div>
+                  {activeSessionId ? (
+                    <>
+                      <p className="text-sm text-gray-600">Focus session active</p>
+                      <p className="text-2xl font-semibold">{minutesSince(activeStartedAt!)} min</p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-600">No active focus session</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {!activeSessionId ? (
+                    <button onClick={startFocus} className="px-4 py-2 rounded bg-green-600 text-white">
+                      Start Focus
+                    </button>
+                  ) : (
+                    <button onClick={endFocus} className="px-4 py-2 rounded bg-rose-600 text-white">
+                      End Focus
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-medium">Today's Focus Sessions</h3>
+                {todaySessions.length === 0 ? (
+                  <p className="text-gray-600 text-sm">No focus sessions yet today.</p>
+                ) : (
+                  <ul className="divide-y rounded border">
+                    {todaySessions.map((s) => (
+                      <li key={s.id} className="p-3 flex items-center justify-between">
+                        <span className="text-sm text-gray-700">
+                          {new Date(s.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {s.ended_at && ' – '}
+                          {s.ended_at
+                            ? new Date(s.ended_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : ''}
+                        </span>
+                        <span className="text-sm font-medium">
+                          {durationBetween(s.started_at, s.ended_at)} min
+                        </span>
+                      </li>) )}
+                  </ul>
+                )}
+              </div>
             </div>
 
             <div className="space-y-3">
