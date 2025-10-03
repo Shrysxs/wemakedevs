@@ -26,6 +26,24 @@ export default function LoginPage() {
     }
   };
 
+  const useDemo = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const demoEmail = 'demo@reclaim.com';
+      const demoPass = 'demo123';
+      setEmail(demoEmail);
+      setPassword(demoPass);
+      const { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password: demoPass });
+      if (error) throw error;
+      router.replace('/dashboard');
+    } catch (err: any) {
+      setError(err?.message || 'Failed to log in with demo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
@@ -59,6 +77,14 @@ export default function LoginPage() {
         >
           {loading ? 'Signing in...' : 'Log in'}
         </button>
+        <button
+          type="button"
+          onClick={useDemo}
+          className="w-full border rounded py-2 disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? 'Please wait…' : 'Use Demo Account'}
+        </button>
         <p className="text-sm">
           No account? <a className="underline" href="/signup">Create one</a>
         </p>
@@ -66,3 +92,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
