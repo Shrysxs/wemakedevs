@@ -28,7 +28,7 @@ function NavItem({ href, label, icon: Icon }: { href: string; label: string; ico
       href={href}
       className={`flex flex-col items-center p-2 rounded-xl transition-all duration-200 ${
         isActive 
-          ? 'text-white bg-blue-600' 
+          ? 'text-white bg-white/10 border border-white/20' 
           : 'text-gray-400 hover:text-white hover:bg-gray-800'
       }`}
     >
@@ -79,10 +79,10 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
 
   if (authed === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <motion.h1 
-            className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-4"
+            className="text-5xl font-bold text-white mb-4 tracking-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -118,7 +118,7 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
               onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-8">
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+                <h1 className="text-xl font-bold text-white">
                   RECLAIM
                 </h1>
                 <button 
@@ -165,7 +165,7 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+          <h1 className="text-xl font-bold text-white">
             RECLAIM
           </h1>
           <div className="w-6"></div> {/* Spacer for alignment */}
@@ -174,7 +174,7 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
         {/* Desktop Sidebar */}
         <aside className="hidden md:flex md:flex-col md:w-64 border-r border-gray-800 bg-gray-900 p-6 space-y-8">
           <div>
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+            <h1 className="text-3xl font-bold text-white tracking-tight">
               RECLAIM
             </h1>
             <p className="text-gray-400 text-sm mt-1">Take back control</p>
@@ -212,7 +212,7 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 className={`flex flex-col items-center p-2 rounded-xl transition-all duration-200 flex-1 ${
                   isActive 
-                    ? 'text-white bg-blue-600' 
+                    ? 'text-white bg-white/10 border border-white/20' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
@@ -227,37 +227,11 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
       {/* Floating Action Button */}
       <Link 
         href="/focus"
-        className="fixed bottom-24 right-6 md:bottom-8 md:right-8 w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg flex items-center justify-center text-white hover:shadow-xl hover:scale-105 transition-all duration-200 z-20"
+        className="fixed bottom-24 right-6 md:bottom-8 md:right-8 w-16 h-16 rounded-full bg-white text-black shadow-2xl flex items-center justify-center hover:shadow-white/20 hover:scale-105 transition-all duration-200 z-20"
       >
-        <Clock className="w-6 h-6" />
+        <Clock className="w-7 h-7" />
       </Link>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <header className="h-16 border-b border-gray-800 bg-black flex items-center justify-end px-6">
-          <button
-            onClick={handleLogout}
-            className="btn-danger text-sm"
-          >
-            Logout
-          </button>
-        </header>
-        <main className="flex-1 bg-black">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-              className="h-full"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-      </div>
     </div>
   );
 }
