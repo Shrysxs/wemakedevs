@@ -12,8 +12,8 @@ export interface UsageLogStub {
   apps?: { name: string; minutes: number }[];
 }
 
-export type UserProfileInput = Record<string, unknown> & ProfileStub;
-export type UsageLogsInput = Array<Record<string, unknown>> & UsageLogStub[];
+export type UserProfileInput = ProfileStub & Record<string, unknown>;
+export type UsageLogsInput = UsageLogStub[];
 
 export interface RecommendationItem {
   title: string;
