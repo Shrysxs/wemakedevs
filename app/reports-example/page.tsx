@@ -135,7 +135,7 @@ export default function ReportsExamplePage() {
                   {reportData.streak} Day Streak!
                 </h3>
                 <p className="text-gray-400 mt-1">
-                  You've been tracking consistently. Keep it up!
+                  You&apos;ve been tracking consistently. Keep it up!
                 </p>
               </div>
               <div className="text-right">

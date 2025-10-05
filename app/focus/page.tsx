@@ -79,7 +79,7 @@ function FocusContent() {
       <Card>
         <CardHeader>
           <CardTitle>Focus Session</CardTitle>
-          <CardDescription>Start a session and end when you're done.</CardDescription>
+          <CardDescription>Start a session and end when you&apos;re done.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           {!sessionId ? (

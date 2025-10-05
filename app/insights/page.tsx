@@ -73,7 +73,7 @@ function InsightsContent() {
         </CardHeader>
         <CardContent>
           {!items && (
-            <div className="text-muted-foreground text-sm">Click "Generate Insights" to fetch new recommendations.</div>
+            <div className="text-muted-foreground text-sm">Click &quot;Generate Insights&quot; to fetch new recommendations.</div>
           )}
           {items && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
