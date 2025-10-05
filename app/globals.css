@@ -1,63 +1,87 @@
-@tailwind base;
+@import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --color-background: hsl(0 0% 0%); /* Pure black #000000 */
+  --color-foreground: hsl(0 0% 96%); /* Light gray #F5F5F5 */
 
-@layer base {
-  :root {
-    --background: 0 0% 0%; /* Pure black #000000 */
-    --foreground: 0 0% 96%; /* Light gray #F5F5F5 */
+  --color-card: hsl(0 0% 5%); /* Very dark gray for cards */
+  --color-card-foreground: hsl(0 0% 96%);
 
-    --card: 0 0% 5%; /* Very dark gray for cards */
-    --card-foreground: 0 0% 96%;
+  --color-popover: hsl(0 0% 5%);
+  --color-popover-foreground: hsl(0 0% 96%);
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 96%;
+  --color-primary: hsl(271 91% 65%); /* Purple accent */
+  --color-primary-foreground: hsl(0 0% 100%);
 
-    --primary: 271 91% 65%; /* Purple accent */
-    --primary-foreground: 0 0% 100%;
+  --color-secondary: hsl(0 0% 15%);
+  --color-secondary-foreground: hsl(0 0% 96%);
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 96%;
+  --color-muted: hsl(0 0% 15%);
+  --color-muted-foreground: hsl(0 0% 61%); /* #9CA3AF */
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 61%; /* #9CA3AF */
+  --color-accent: hsl(0 0% 15%);
+  --color-accent-foreground: hsl(0 0% 96%);
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 96%;
+  --color-destructive: hsl(0 84% 60%); /* Red #ef4444 */
+  --color-destructive-foreground: hsl(0 0% 96%);
 
-    --destructive: 0 84% 60%; /* Red #ef4444 */
-    --destructive-foreground: 0 0% 96%;
+  --color-border: hsl(0 0% 22%); /* #374151 */
+  --color-input: hsl(0 0% 22%);
+  --color-ring: hsl(271 91% 65%);
 
-    --border: 0 0% 22%; /* #374151 */
-    --input: 0 0% 22%;
-    --ring: 271 91% 65%;
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
 
-    --radius: 0.5rem;
+  /* Chart colors aligned with your design */
+  --color-chart-1: hsl(43 96% 56%); /* Amber #f59e0b */
+  --color-chart-2: hsl(271 91% 65%); /* Purple #8b5cf6 */
+  --color-chart-3: hsl(142 76% 36%); /* Green #10b981 */
+  --color-chart-4: hsl(0 84% 60%); /* Red #ef4444 */
+  --color-chart-5: hsl(217 91% 60%); /* Blue #3b82f6 */
 
-    /* Chart colors aligned with your design */
-    --chart-1: 43 96% 56%; /* Amber #f59e0b */
-    --chart-2: 271 91% 65%; /* Purple #8b5cf6 */
-    --chart-3: 142 76% 36%; /* Green #10b981 */
-    --chart-4: 0 84% 60%; /* Red #ef4444 */
-    --chart-5: 217 91% 60%; /* Blue #3b82f6 */
-  }
+  /* Sidebar colors */
+  --color-sidebar: hsl(0 0% 98%);
+  --color-sidebar-foreground: hsl(240 5.3% 26.1%);
+  --color-sidebar-primary: hsl(240 5.9% 10%);
+  --color-sidebar-primary-foreground: hsl(0 0% 98%);
+  --color-sidebar-accent: hsl(240 4.8% 95.9%);
+  --color-sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --color-sidebar-border: hsl(220 13% 91%);
+  --color-sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
-  }
-}
+@variant dark (&:is(.dark *));
 
 :root {
+  /* Legacy CSS variables for component usage */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 271 91% 65%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 61%;
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 96%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 96%;
+  --border: 0 0% 22%;
+  --input: 0 0% 22%;
+  --ring: 271 91% 65%;
+  --radius: 0.5rem;
+  --chart-1: 43 96% 56%;
+  --chart-2: 271 91% 65%;
+  --chart-3: 142 76% 36%;
+  --chart-4: 0 84% 60%;
+  --chart-5: 217 91% 60%;
+
+  /* Sidebar variables */
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);
   --sidebar-primary: hsl(240 5.9% 10%);
@@ -66,6 +90,18 @@
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
 }
 
 .dark {
@@ -77,24 +113,4 @@
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
   --sidebar-border: hsl(240 3.7% 15.9%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@theme inline {
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
