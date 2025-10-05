@@ -82,9 +82,9 @@ export default function OnboardingPage() {
 
         {/* Goal */}
         <div className="space-y-1">
-          <label className="block text-sm">What’s your main goal?</label>
+          <label className="block text-sm text-gray-300">What&apos;s your main goal?</label>
           <select
-            className="w-full border rounded px-3 py-2 bg-white"
+            className="w-full border border-gray-700 rounded-lg px-3 py-2 bg-gray-800 text-white focus:border-gray-500 focus:ring-0 focus:outline-none"
             value={goal}
             onChange={(e) => setGoal(e.target.value as Goal)}
             required
@@ -98,10 +98,10 @@ export default function OnboardingPage() {
 
         {/* Skill */}
         <div className="space-y-1">
-          <label className="block text-sm">What skill do you want to improve?</label>
+          <label className="block text-sm text-gray-300">What skill do you want to improve?</label>
           <input
             type="text"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-gray-700 rounded-lg px-3 py-2 bg-gray-800 text-white placeholder-gray-400 focus:border-gray-500 focus:ring-0 focus:outline-none"
             value={skill}
             onChange={(e) => setSkill(e.target.value)}
             placeholder="e.g. DSA, writing, sleep hygiene"
@@ -110,9 +110,9 @@ export default function OnboardingPage() {
 
         {/* Inspiration */}
         <div className="space-y-1">
-          <label className="block text-sm">What inspires you?</label>
+          <label className="block text-sm text-gray-300">What inspires you?</label>
           <select
-            className="w-full border rounded px-3 py-2 bg-white"
+            className="w-full border border-gray-700 rounded-lg px-3 py-2 bg-gray-800 text-white focus:border-gray-500 focus:ring-0 focus:outline-none"
             value={inspiration}
             onChange={(e) => setInspiration(e.target.value as Inspiration)}
             required
@@ -126,9 +126,9 @@ export default function OnboardingPage() {
 
         {/* Distraction */}
         <div className="space-y-1">
-          <label className="block text-sm">When are you most distracted?</label>
+          <label className="block text-sm text-gray-300">When are you most distracted?</label>
           <select
-            className="w-full border rounded px-3 py-2 bg-white"
+            className="w-full border border-gray-700 rounded-lg px-3 py-2 bg-gray-800 text-white focus:border-gray-500 focus:ring-0 focus:outline-none"
             value={distraction}
             onChange={(e) => setDistraction(e.target.value as Distraction)}
             required
@@ -142,7 +142,17 @@ export default function OnboardingPage() {
 
         <button
           type="submit"
-          className="w-full bg-black text-white rounded py-2 disabled:opacity-50"
+          className="w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200"
+          style={{ 
+            backgroundColor: '#0A0A0A',
+            color: 'white'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#10B981';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#0A0A0A';
+          }}
           disabled={loading || !userId}
         >
           {loading ? 'Saving...' : 'Continue'}

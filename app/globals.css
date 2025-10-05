@@ -6,6 +6,9 @@
   --background: #000000;
   --foreground: #F5F5F5;
   --placeholder: #9CA3AF;
+  --sidebar: #0A0A0A;
+  --logout-bg: #E92020;
+  --focus-bg: #10B981;
 }
 
 body {
@@ -34,10 +37,23 @@ body {
   h3 { @apply text-xl md:text-2xl; }
   
   /* Input & Form Styling */
-  input, textarea, select {
-    @apply bg-gray-900 border border-gray-700 text-gray-100 rounded-lg px-4 py-3;
+  /* Auth Form Styling - Centered Rectangle Layout */
+  .container-centered {
+    @apply min-h-screen flex items-center justify-center bg-black px-4;
+  }
+  
+  .auth-form {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-8;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .input-minimal {
+    @apply bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3;
     @apply focus:border-gray-500 focus:ring-0 focus:outline-none;
     @apply transition-colors duration-200;
+    width: 100%;
   }
   
   input::placeholder, textarea::placeholder {
@@ -56,13 +72,17 @@ body {
   }
   
   .btn-success {
-    @apply bg-green-600 text-white px-6 py-3 rounded-lg font-medium;
-    @apply hover:bg-green-700 transition-colors duration-200;
+    background-color: var(--focus-bg);
+    color: white;
+    @apply px-6 py-3 rounded-lg font-medium;
+    @apply hover:opacity-90 transition-opacity duration-200;
   }
   
   .btn-danger {
-    @apply bg-red-600 text-white px-6 py-3 rounded-lg font-medium;
-    @apply hover:bg-red-700 transition-colors duration-200;
+    background-color: var(--logout-bg);
+    color: white;
+    @apply px-6 py-3 rounded-lg font-medium;
+    @apply hover:opacity-90 transition-opacity duration-200;
   }
   
   /* Card Styles */
